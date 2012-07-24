@@ -1,11 +1,21 @@
-CXXFLAGS=-std=c++0x -Wall -Wextra -Weffc++ $(shell pkg-config --cflags glib-2.0)
-OBJ=read.o particles.o
-LDFLAGS=$(shell pkg-config --libs glib-2.0) -lhdf5_cpp -lhdf5
+CFLAGS=-std=c99 -Wall -Wextra $(shell pkg-config --cflags glib-2.0)
+OBJ=qdv.o lang.o lexer.o parse.o
+LDFLAGS=$(shell pkg-config --libs glib-2.0) -lreadline -lfl
+LEX=flex
+YACC=bison
+YFLAGS=-d
 
-all: optimized $(OBJ)
+all: $(OBJ) query
 
-optimized: read.o particles.o
-	$(CXX) $^ -o $@ $(LDFLAGS)
+query: qdv.o lang.o lexer.o parse.o
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -f $(OBJ) optimized
+	rm -f $(OBJ) query
+
+%.c: %.l
+	$(LEX) -o $@ $^
+%.c: %.y
+	$(YACC) $(YFLAGS) -o $@ $^
+lang.h: lang.y
+	$(YACC) $(YFLAGS) -o $@ $^
