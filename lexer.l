@@ -15,18 +15,20 @@ IDENTIFIER ([[:alpha:]])+([[:alnum]])*
 INT        ([[:digit:]])+
 SELECT     ([Ss][Ee][Ll][Ee][Cc][Tt])
 WHERE      ([Ww][Hh][Ee][Rr][Ee])
+QUIT       ([Qq][Uu][Ii][Tt])
 
 %%
 
 {SELECT} { yylval->string = g_strdup("SELECT"); return SELECT; }
 {WHERE}  { yylval->string = g_strdup("WHERE"); return WHERE; }
+{QUIT}   { yylval->string = g_strdup("QUIT"); return QUIT; }
 {FLT} { yylval->fp = atof(yytext); return FLOAT; }
 "{" { yylval->v_c = '{'; return LBRACKET; }
 "}" { yylval->v_c = '}'; return RBRACKET; }
 "(" { yylval->v_c = '('; return LPAREN; }
 ")" { yylval->v_c = ')'; return RPAREN; }
 "," { yylval->v_c = ','; return SEPARATOR; }
-";" { return SENTINEL; }
+";" { yylval->v_c = ';'; return SENTINEL; }
 "<" { yylval->relop = '<'; return RELOP; }
 ">" { yylval->relop = '>'; return RELOP; }
 "<=" { yylval->relop = 'l'; return RELOP; }
