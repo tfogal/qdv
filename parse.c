@@ -2,6 +2,7 @@
 #include <glib.h>
 #include "parse.h"
 #include "pt-variable.h"
+#include "constant.h"
 
 static G_GNUC_MALLOC ParseTree* ptree_alloc(enum PTType type);
 
@@ -66,6 +67,9 @@ ptree_alloc(enum PTType type)
       retval = (ParseTree*) g_new0(GenericParseTree, 1);
       retval->vtable.print = pr_unknown;
       break;
+    case PT_CONSTANT:
+      retval = (ParseTree*) pt_constant_alloc();
+      break;
     case PT_VARIABLE:
       retval = (ParseTree*) pt_variable_alloc();
       break;
@@ -91,7 +95,9 @@ destroy_(GNode* node, G_GNUC_UNUSED gpointer udata)
 void
 destroy(GNode* root)
 {
+  g_debug("Destroying %p...", root);
   g_node_traverse(root, G_POST_ORDER, G_TRAVERSE_ALL, -1, destroy_, NULL);
+  g_node_destroy(root);
 }
 
 static gboolean

@@ -1,9 +1,11 @@
 %{
 #define YYERROR_VERBOSE 1
 
-#include <glib.h>
+#include <inttypes.h>
 #include <stdio.h>
+#include <glib.h>
 #include "lang.h"
+#include "constant.h"
 #include "parse.h"
 #include "pt-variable.h"
 
@@ -26,7 +28,7 @@ GNode *parser_tree_root() { return root; }
 %pure-parser
 
 %union {
-   int integer;
+   int64_t integer;
    double fp;
    char *string;
    char relop;
@@ -40,6 +42,7 @@ GNode *parser_tree_root() { return root; }
 %token <v_c> SEPARATOR
 %token <v_c> SENTINEL
 %token <v_c> DOT
+%token <string> AND
 %token <string> SELECT
 %token <string> QUIT
 %token <string> WHERE
@@ -48,21 +51,36 @@ GNode *parser_tree_root() { return root; }
 %token <fp> FLOAT
 %token <integer> INTEGER
 
+%type <y_tree> Constant
 %type <y_tree> IDList
 %type <y_tree> Identifier
+%type <y_tree> Query
+%type <y_tree> Relation
+%type <y_tree> RelOpList
+%type <y_tree> Selection
 
 %destructor { g_free($$); } SELECT WHERE QUIT ID
 
 %%
 
 Query
-  : SELECT IDList {
-    root = mk_ptree_node(PT_QUERY, yylineno,0, $2, NULL);
+  : Selection { root = $$ = $1; }
+  | QUIT {
+    $$ = root = mk_ptree_node(PT_QUIT, yylineno,0, NULL);
     g_free($1);
   }
-  | QUIT {
-    root = mk_ptree_node(PT_QUIT, yylineno,0, NULL);
+  ;
+
+Selection
+  : SELECT IDList {
+    $$ = mk_ptree_node(PT_QUERY, yylineno,0, $2, NULL);
     g_free($1);
+  }
+  | SELECT IDList WHERE RelOpList {
+    $$ = mk_ptree_node(PT_QUERY, yylineno,0, $2, $4, NULL);
+    g_free($1);
+    g_free($3);
+    g_print("relops!\n");
   }
   ;
 
@@ -78,6 +96,35 @@ IDList
 Identifier
   : ID {
     $$ = mk_ptree_node(PT_VARIABLE, yylineno,@1.first_column, NULL);
-    g_assert($$->parent == NULL);
     PT_NODE_PTR(ptVariable, $$)->name = g_strdup($1);
   }
+  ;
+
+RelOpList
+  : RelOpList AND Relation {
+    g_print("reloplist + relation!\n");
+  }
+  | Relation {
+    g_print("Relation!\n");
+  }
+  ;
+
+Relation
+  : Identifier RELOP Constant {
+    g_print("id RELOP constant!\n");
+  }
+  | Constant RELOP Identifier {
+    g_print("constant RELOP id!\n");
+  }
+  ;
+
+Constant
+  : FLOAT {
+    $$ = mk_ptree_node(PT_CONSTANT, yylineno,@1.first_column, NULL);
+    constant_setf(PT_NODE_PTR(Constant, $$), $1);
+  }
+  | INTEGER {
+    $$ = mk_ptree_node(PT_CONSTANT, yylineno,@1.first_column, NULL);
+    constant_seti(PT_NODE_PTR(Constant, $$), $1);
+  }
+  ;

@@ -6,6 +6,7 @@
 
 enum PTType {
   PT_QUERY,
+  PT_CONSTANT,
   PT_LIST,
   PT_QUIT,
   PT_VARIABLE,

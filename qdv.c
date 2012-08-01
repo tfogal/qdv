@@ -61,9 +61,8 @@ process(const char* cmd)
 done:
   yy_delete_buffer(st);
   g_debug("destroying tree...");
-  if(parsetree) {
+  if(parsetree && parse_ok == 0) {
     destroy(parsetree);
-    g_node_destroy(parsetree);
   }
 
   yylex_destroy();

@@ -16,12 +16,14 @@ INT        ([[:digit:]])+
 SELECT     ([Ss][Ee][Ll][Ee][Cc][Tt])
 WHERE      ([Ww][Hh][Ee][Rr][Ee])
 QUIT       ([Qq][Uu][Ii][Tt])
+AND        ([Aa][Nn][Dd])
 
 %%
 
 {SELECT} { yylval->string = g_strdup("SELECT"); return SELECT; }
 {WHERE}  { yylval->string = g_strdup("WHERE"); return WHERE; }
 {QUIT}   { yylval->string = g_strdup("QUIT"); return QUIT; }
+{AND}   { yylval->string = g_strdup("AND"); return AND; }
 {FLT} { yylval->fp = atof(yytext); return FLOAT; }
 "{" { yylval->v_c = '{'; return LBRACKET; }
 "}" { yylval->v_c = '}'; return RBRACKET; }
@@ -40,7 +42,7 @@ QUIT       ([Qq][Uu][Ii][Tt])
    return ID;
 }
 {INT} {
-   yylval->integer = atoi(yytext);
+   yylval->integer = atoll(yytext);
    return INTEGER;
 }
 
