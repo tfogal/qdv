@@ -7,6 +7,7 @@
 #include "lang.h"
 #include "constant.h"
 #include "parse.h"
+#include "pt-load.h"
 #include "pt-relation.h"
 #include "pt-variable.h"
 #include "pt-variable-ref.h"
@@ -39,24 +40,29 @@ GNode *parser_tree_root() { return root; }
    GNode *y_tree;
    gpointer y_alwaysnull;
 }
+%token <fp> FLOAT
+%token <integer> INTEGER
+%token <relop> RELOP
+%token <string> AND
+%token <string> ID
+%token <string> LOAD
+%token <string> PATH
+%token <string> QUIT
+%token <string> SELECT
+%token <string> WHERE
 %token <v_c> LBRACKET RBRACKET
 %token <v_c> LPAREN RPAREN
 %token <v_c> SEPARATOR
 %token <v_c> SENTINEL
 %token <v_c> DOT
-%token <string> AND
-%token <string> SELECT
-%token <string> QUIT
-%token <string> WHERE
-%token <relop> RELOP
-%token <string> ID
-%token <fp> FLOAT
-%token <integer> INTEGER
 
+%type <y_tree> Command
 %type <y_tree> Constant
 %type <y_tree> IDList
 %type <y_tree> Identifier
+%type <y_tree> Load
 %type <y_tree> Query
+%type <y_tree> Quit
 %type <y_tree> Reference
 %type <y_tree> Relation
 %type <y_tree> RelOpList
@@ -66,9 +72,30 @@ GNode *parser_tree_root() { return root; }
 
 %%
 
+Command
+  : Query { root = $$ = $1; }
+  | Load { root = $$ = $1; }
+  | Quit { root = $$ = $1; }
+  ;
+
 Query
   : Selection { root = $$ = $1; }
-  | QUIT {
+  ;
+
+Load
+  : LOAD PATH {
+    $$ = mk_ptree_node(PT_LOAD, yylineno,@2.first_column, NULL);
+    PT_NODE_PTR(ptLoad, $$)->filename = g_strdup($2);
+    g_free($2);
+  }
+  | LOAD ID {
+    $$ = mk_ptree_node(PT_LOAD, yylineno,@2.first_column, NULL);
+    PT_NODE_PTR(ptLoad, $$)->filename = g_strdup($2);
+    g_free($2);
+  };
+
+Quit
+  : QUIT {
     $$ = root = mk_ptree_node(PT_QUIT, yylineno,0, NULL);
     g_free($1);
   }

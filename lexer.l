@@ -17,9 +17,12 @@ SELECT     ([Ss][Ee][Ll][Ee][Cc][Tt])
 WHERE      ([Ww][Hh][Ee][Rr][Ee])
 QUIT       ([Qq][Uu][Ii][Tt])
 AND        ([Aa][Nn][Dd])
+LOAD       ([Ll][Oo][Aa][Dd])
+PATH       ([[:alnum:]]*[[:punct:]]*[[:alnum:]]*)+
 
 %%
 
+{LOAD}   { yylval->string = g_strdup("LOAD"); return LOAD; }
 {SELECT} { yylval->string = g_strdup("SELECT"); return SELECT; }
 {WHERE}  { yylval->string = g_strdup("WHERE"); return WHERE; }
 {QUIT}   { yylval->string = g_strdup("QUIT"); return QUIT; }
@@ -52,6 +55,7 @@ AND        ([Aa][Nn][Dd])
    yylval->v_c = '.';
    return DOT;
 }
+{PATH}  { yylval->string = g_strdup(yytext); return PATH; }
 . { printf("unrecognized character: [%s]\n", yytext); }
 
 %%

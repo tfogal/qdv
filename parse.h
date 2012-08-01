@@ -7,6 +7,7 @@
 enum PTType {
   PT_QUERY,
   PT_CONSTANT,
+  PT_LOAD,
   PT_LIST,
   PT_QUIT,
   PT_RELATION,

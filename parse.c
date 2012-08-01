@@ -2,6 +2,7 @@
 #include <glib.h>
 #include "parse.h"
 #include "constant.h"
+#include "pt-load.h"
 #include "pt-relation.h"
 #include "pt-variable.h"
 #include "pt-variable-ref.h"
@@ -71,6 +72,9 @@ ptree_alloc(enum PTType type)
       break;
     case PT_CONSTANT:
       retval = (ParseTree*) pt_constant_alloc();
+      break;
+    case PT_LOAD:
+      retval = (ParseTree*) pt_load_alloc();
       break;
     case PT_RELATION:
       retval = (ParseTree*) pt_relation_alloc();
