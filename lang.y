@@ -7,7 +7,9 @@
 #include "lang.h"
 #include "constant.h"
 #include "parse.h"
+#include "pt-relation.h"
 #include "pt-variable.h"
+#include "pt-variable-ref.h"
 
 #define YYPARSE_PARAM scanner
 #define YYLEX_PARAM   scanner
@@ -55,6 +57,7 @@ GNode *parser_tree_root() { return root; }
 %type <y_tree> IDList
 %type <y_tree> Identifier
 %type <y_tree> Query
+%type <y_tree> Reference
 %type <y_tree> Relation
 %type <y_tree> RelOpList
 %type <y_tree> Selection
@@ -80,7 +83,6 @@ Selection
     $$ = mk_ptree_node(PT_QUERY, yylineno,0, $2, $4, NULL);
     g_free($1);
     g_free($3);
-    g_print("relops!\n");
   }
   ;
 
@@ -102,19 +104,29 @@ Identifier
 
 RelOpList
   : RelOpList AND Relation {
-    g_print("reloplist + relation!\n");
+    $$ = mk_ptree_node(PT_LIST, yylineno,@1.first_column, $1, $3, NULL);
   }
-  | Relation {
-    g_print("Relation!\n");
-  }
+  | Relation { $$ = $1; }
   ;
 
-Relation
-  : Identifier RELOP Constant {
-    g_print("id RELOP constant!\n");
+Reference
+  : ID {
+    $$ = mk_ptree_node(PT_VARIABLE_REFERENCE, yylineno,@1.first_column, NULL);
+    PT_NODE_PTR(ptVRef, $$)->name = g_strdup($1);
   }
-  | Constant RELOP Identifier {
-    g_print("constant RELOP id!\n");
+
+Relation
+  : Reference RELOP Constant {
+    $$ = mk_ptree_node(PT_RELATION, yylineno,@1.first_column, $1, $3, NULL);
+    PT_NODE_PTR(ptRelation, $$)->op = $2;
+  }
+  | Constant RELOP Reference {
+    $$ = mk_ptree_node(PT_RELATION, yylineno,@1.first_column, $1, $3, NULL);
+    PT_NODE_PTR(ptRelation, $$)->op = $2;
+  }
+  | Reference RELOP Reference {
+    $$ = mk_ptree_node(PT_RELATION, yylineno,@1.first_column, $1, $3, NULL);
+    PT_NODE_PTR(ptRelation, $$)->op = $2;
   }
   ;
 

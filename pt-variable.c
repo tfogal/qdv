@@ -26,6 +26,7 @@ static void
 var_destroy(GNode* gn)
 {
   ptVariable* v = PT_NODE_PTR(ptVariable, gn);
+  g_assert(v->meta.type == PT_VARIABLE);
   if(v->name) {
     g_free(v->name);
   }

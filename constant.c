@@ -9,6 +9,7 @@ pt_constant_alloc()
   Constant* c = g_new0(Constant, 1);
   c->meta.vtable.print = constant_print;
   c->meta.vtable.destroy = constant_destroy;
+  return c;
 }
 
 static void

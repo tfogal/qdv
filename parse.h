@@ -9,7 +9,9 @@ enum PTType {
   PT_CONSTANT,
   PT_LIST,
   PT_QUIT,
+  PT_RELATION,
   PT_VARIABLE,
+  PT_VARIABLE_REFERENCE,
 };
 
 /** The argument must be a GNode from the parse tree.

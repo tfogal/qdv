@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <glib.h>
 #include "parse.h"
-#include "pt-variable.h"
 #include "constant.h"
+#include "pt-relation.h"
+#include "pt-variable.h"
+#include "pt-variable-ref.h"
 
 static G_GNUC_MALLOC ParseTree* ptree_alloc(enum PTType type);
 
@@ -70,8 +72,14 @@ ptree_alloc(enum PTType type)
     case PT_CONSTANT:
       retval = (ParseTree*) pt_constant_alloc();
       break;
+    case PT_RELATION:
+      retval = (ParseTree*) pt_relation_alloc();
+      break;
     case PT_VARIABLE:
       retval = (ParseTree*) pt_variable_alloc();
+      break;
+    case PT_VARIABLE_REFERENCE:
+      retval = (ParseTree*) pt_vref_alloc();
       break;
   }
   g_assert(retval != NULL && "forgot to add alloc case?");
