@@ -25,7 +25,5 @@ vref_destroy(GNode* gn)
 {
   ptVRef* vref = PT_NODE_PTR(ptVRef, gn);
   g_assert(vref->meta.type == PT_VARIABLE_REFERENCE);
-  if(vref->name) {
-    g_free(vref->name);
-  }
+  g_free(vref->name);
 }
