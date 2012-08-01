@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <readline/history.h>
 #include <readline/readline.h>
 #include "parse.h"
 
@@ -55,6 +56,7 @@ process(const char* cmd)
       } else {
         /* for now, just print it for debugging. */
         pt_print(parsetree);
+        add_history(cmd);
       }
     }
 
