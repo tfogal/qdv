@@ -53,6 +53,8 @@ process(const char* cmd)
         g_print("bye.\n");
         continu = false;
         goto done;
+      } else if(PT_NODE_TYPE(parsetree) == PT_LOAD) {
+        /* load a new data set */
       } else {
         /* for now, just print it for debugging. */
         pt_print(parsetree);
